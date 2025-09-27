@@ -1,0 +1,26 @@
+
+
+@{
+Layout = "_Layout";
+}
+
+
+
+        <div class="main__imageMain">
+            <div class="imageMain__container">
+                <div class="imageMain__body">
+                    <div class="imageMain__image">
+                        <img src="~/img/mike-meyers-LcZnOtKtOUc-unsplash.jpg" alt="intro img">
+                    </div>
+                    <div class="imageMain__Title title">
+                        Welcome 
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @await Html.PartialAsync("_RecomendationSlider", ViewBag.RandomProducts, null)
+        
+
+
+

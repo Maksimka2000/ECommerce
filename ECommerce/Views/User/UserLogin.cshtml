@@ -1,0 +1,30 @@
+
+@model AccountLoginViewModel
+
+<div class="login-signup">
+    
+    <div class="login-signup__container container">
+        <div class="login-signup__login">
+            <form class=" login" asp-action="Login" asp-controller="User" method="post">
+                <div class="login__name">
+                    <input type="text" class="_input" placeholder="smth@example.com" name="Email" id="username" value="@Model?.Email">	
+                </div>
+                <div class="login__password">
+                    <input class="_input" type="password" name="Password" id="password" placeholder="*************">
+                </div>
+                <div class="login__errors">
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                    @ViewBag.ErrorText
+                </div>
+                <div class="login__button">	
+                    <button type="submit" class="_button" name="login" value="Вход">Log in</button>
+                </div>
+            </form>
+            <div class="signup__button">
+                <a href="/account/signup" class="_button">Register</a>
+            </div>
+        </div>
+    </div>
+    
+</div>

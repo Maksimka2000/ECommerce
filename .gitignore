@@ -1,0 +1,13 @@
+bin/
+obj/
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+.DS_Store
+*.db
+*.db-shm
+*.db-wal
+.claude/
+.env*

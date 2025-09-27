@@ -1,0 +1,37 @@
+
+
+@model List<E_commerce.Entities.Product>
+
+<div class="recomend-slider">
+            <div class="recomend-slider__container container">
+                <div class="recomend-slider__body">
+                    <div class="recomend-slider__recomend-header">
+                        <div class="recomend-header">
+                            <div class="recomend-header__title title">Recomendation</div>
+                            <div class="recomend-header__line"></div>
+                            <div class="recomend-header__arrows">
+                                <button
+                                    class="recomend-header__arrow 
+                                recomend-header__button-prev slider-recomend-header__button-prev "> &lt; </button>
+                                <button
+                                    class="recomend-header__arrow 
+                                recomend-header__button-next slider-recomend-header__button-next  ">  &gt; </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="recomend-slider__slider">
+                        <div class="recomend-slider__wrapper">
+
+                            @foreach (var product in Model)
+                            {
+                            <div class="recomend-slider__slide">
+                                @await Html.PartialAsync("_ProductCard", product, null)
+                            </div>
+                            }
+                            
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>

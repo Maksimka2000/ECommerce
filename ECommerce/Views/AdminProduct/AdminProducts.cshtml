@@ -1,0 +1,55 @@
+
+@model IEnumerable<E_commerce.Entities.Product>
+
+@{
+    Layout = "_AdminLayout";
+}
+
+
+<section class="product-management">
+            <div class="product-management__container container">
+                <h2 class="product-management__title title">Product Management</h2>
+                <a href="/admin/products/add" class="product-management__button-new _button">Add New Product</a>
+                <div class="product-management__table-wrapper">
+                    <table class="product-management__table">
+                        <thead class="product-management__thead">
+                            <tr class="product-management__header-row">
+                                <th class="product-management__header-cell subtitle">ID</th>
+                                <th class="product-management__header-cell subtitle">Name</th>
+                                <th class="product-management__header-cell subtitle">Description</th>
+                                <th class="product-management__header-cell subtitle">Availability</th>
+                                <th class="product-management__header-cell subtitle">Price</th>
+                                <th class="product-management__header-cell subtitle">Photo</th>
+                                <th class="product-management__header-cell subtitle">Product Type</th>
+                                <th class="product-management__header-cell subtitle">Action</th>
+                                <th class="product-management__header-cell subtitle">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="product-management__tbody">
+
+                        @foreach (var product in Model)
+                        {
+                            <tr class="product-management__row">
+                                <td class="product-management__cell">@product.IdProduct</td>
+                                <td class="product-management__cell">@product.Name</td>
+                                <td class="product-management__cell product-management__cell--long-description ">@product.Description</td>
+                                <td class="product-management__cell"> @(product.Availability == true ? "Available" : "not Available" )</td>
+                                <td class="product-management__cell">@product.Price <span> $</span> </td>
+                                <td class="product-management__cell">
+                                    <img class="product-management__photo" src="~/img/@product.PhotoName" alt="Product Image">
+                                </td>
+                                <td class="product-management__cell">@product.ProductType.TypeName</td>
+                                <td class="product-management__cell product-management__cell--buttons">
+                                    <a href="/admin/products/update/@product.IdProduct" class="product-management__button product-management__button--update _button">Update</a>
+                                </td>
+                                <td class="product-management__cell product-management__cell--buttons">
+                                    <button onclick="openDeletePopup('/admin/products/remove/@product.IdProduct')" class="product-management__button product-management__button--remove _button">Remove</button>
+                                </td>
+                            </tr>
+                        }
+                        
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>

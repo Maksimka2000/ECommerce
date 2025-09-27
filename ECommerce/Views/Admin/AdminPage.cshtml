@@ -1,0 +1,35 @@
+﻿
+@{
+    Layout = "_AdminLayout";
+}
+
+
+<section class="account">
+    <div class="account__container container" style="margin: 40px auto">
+        <div class="account__title title">Admin Panel</div>
+        <p class="account__welcome-message subtitle">Welcome, <span class="account__username subtitle">to admin panel</span>!</p>
+        <div class="settings">
+            <div class="settings__row">
+                <div>
+                    <div class="settings__label subtitle">Show weight</div>
+                    <p class="settings__hint text">Shows the vectors (user and products) in the shop.</p>
+                </div>
+                <form method="post" action="/settings/show-weights">
+                    <button type="submit" class="settings__toggle _button @(Context.Request.Cookies["ShowWeights"] == "1" ? "_active" : "")">
+                        @(Context.Request.Cookies["ShowWeights"] == "1" ? "On" : "Off")
+                    </button>
+                </form>
+            </div>
+            <div class="settings__row">
+                <div>
+                    <div class="settings__label subtitle">Vector</div>
+                    <p class="settings__hint text">The vector and the Euclidean distance to every product.</p>
+                </div>
+                <a href="/recommendations" class="settings__toggle _button">See vector</a>
+            </div>
+        </div>
+        <form method="post" action="/admin/logout">
+            <button type="submit" class="account__logout-button _button" style="width: 100%; margin-top: 70px; display: flex; align-items: center; justify-content: center">Logout</button>
+        </form>
+    </div>
+</section>

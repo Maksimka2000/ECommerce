@@ -1,0 +1,35 @@
+@using E_commerce.Controllers
+@model E_commerce.Entities.Product
+
+@{
+    var showWeights = Context.Request.Cookies[ControllerExtensions.ShowWeightsCookie] == "1";
+}
+
+<div class="product-card">
+    <div class="product-card__wrapper">
+        <a href="/product/@Model.IdProduct" class="product-card__image">
+            <img src="~/img/@Model.PhotoName" alt="@Model.Name">
+        </a>
+        <a href="/product/@Model.IdProduct" class="product-card__title subtitle _hover">
+            @Model.Name
+        </a>
+        <div class="product-card__prices">
+            <div class="product-card__price subtitle">@Model.Price <span>$</span> </div>
+        </div>
+        @if (showWeights && Model.Weights != null)
+        {
+            <ul class="weights-chips">
+                @foreach (var weight in Model.Weights.Where(w => w.Weight > 0).OrderByDescending(w => w.Weight))
+                {
+                    <li class="weights-chips__item smalltext">@weight.ProductType?.TypeName <b>@weight.Weight</b></li>
+                }
+            </ul>
+        }
+        <form method="post" action="/account/cart/add">
+            <input type="hidden" name="productId" value="@Model.IdProduct" />
+            <button type="submit" class="product-card__cart-button buy-button _button">
+                Add to Cart
+            </button>
+        </form>
+    </div>
+</div>

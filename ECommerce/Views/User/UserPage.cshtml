@@ -1,0 +1,124 @@
+@{
+Layout = "_Layout";
+string tab = ViewBag.Tab;
+}
+
+<section class="account">
+    <div class="account__container container" style="margin: 40px auto">
+        <div class="account__title title">Account</div>
+        <p class="account__welcome-message subtitle">Welcome back, @ViewBag.UserName !</p>
+
+        <nav class="account-tabs">
+            <a href="/account?tab=orders" class="account-tabs__link subtitle @(tab == "orders" ? "_active" : "")">Order history</a>
+            <a href="/account?tab=wishlist" class="account-tabs__link subtitle @(tab == "wishlist" ? "_active" : "")">Wishlist</a>
+            <a href="/account?tab=settings" class="account-tabs__link subtitle @(tab == "settings" ? "_active" : "")">Settings</a>
+        </nav>
+
+        <form method="post" action="/account/logout">
+            <button type="submit" class="account__logout-button _button" style="width: 100%; margin-top: 30px; display: flex; align-items: center; justify-content: center">Logout</button>
+        </form>
+    </div>
+</section>
+
+
+@if (tab == "wishlist")
+{
+<section class="order-management">
+    <div class="order-management__container container" style="margin: 40px auto">
+        <h2 class="order-management__title title">Your wishlist</h2>
+
+        <ul class="order-management__Orders" style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 20px;">
+            @if (ViewBag.ProductsInWishList != null && ViewBag.ProductsInWishList.Count > 0)
+            {
+                @foreach (var product in ViewBag.ProductsInWishList)
+                {
+                    @await Html.PartialAsync("_ProductCard", product, null)
+                }
+            }
+            else
+            {
+                <p class="order-management__empty">Your wishlist is empty.</p>
+            }
+        </ul>
+    </div>
+</section>
+}
+else if (tab == "settings")
+{
+<section class="order-management">
+    <div class="order-management__container container" style="margin: 40px auto">
+        <h2 class="order-management__title title">Settings</h2>
+
+        <div class="settings">
+            <div class="settings__row">
+                <div>
+                    <div class="settings__label subtitle">Show weight</div>
+                    <p class="settings__hint text">Shows your vector at the top of every page and the vector of every product.</p>
+                </div>
+                <form method="post" action="/settings/show-weights">
+                    <button type="submit" class="settings__toggle _button @(ViewBag.ShowWeights ? "_active" : "")">
+                        @(ViewBag.ShowWeights ? "On" : "Off")
+                    </button>
+                </form>
+            </div>
+            <div class="settings__row">
+                <div>
+                    <div class="settings__label subtitle">My vector</div>
+                    <p class="settings__hint text">Your vector and the Euclidean distance to every product.</p>
+                </div>
+                <a href="/recommendations" class="settings__toggle _button">See vector</a>
+            </div>
+        </div>
+    </div>
+</section>
+}
+else
+{
+<section class="order-management">
+    <div class="order-management__container container" style="margin: 40px auto">
+        <h2 class="order-management__title title">Order history</h2>
+
+        @if (TempData["OrderSuccess"] != null)
+        {
+            <p class="order-management__success text">@TempData["OrderSuccess"]</p>
+        }
+
+        @if (ViewBag.Orders != null && ViewBag.Orders.Count > 0)
+        {
+            <ul class="order-management__Orders">
+                @foreach (var order in ViewBag.Orders)
+                {
+                    <li class="order-management__Order">
+                        <div class="subtitle">Order #@order.Id &mdash; @order.Total <span>$</span></div>
+                        <div class="order-management__OrderDate text">@order.CreatedAt.ToString("dd.MM.yyyy HH:mm")</div>
+                        <div class="order-management__OrderStatus text">
+                            Delivered (fake delivery) &middot; @order.DeliveryMethod &middot; @order.FullName, @order.Phone, @order.City, @order.Address
+                        </div>
+                        <div class="order-management__Products-Title text">Products:</div>
+                        <ul class="order-management__Products">
+                            @foreach (var item in order.Items)
+                            {
+                                <li class="order-management__Product text">
+                                    @if (item.ProductId != null)
+                                    {
+                                        <a href="/product/@item.ProductId" class="order-management__ProductTitle _hover">@item.ProductName</a>
+                                    }
+                                    else
+                                    {
+                                        <span class="order-management__ProductTitle">@item.ProductName</span>
+                                    }
+                                    <span>x @item.Quantity &middot; @item.Price <span>$</span></span>
+                                </li>
+                            }
+                        </ul>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p class="order-management__empty">You have no orders yet.</p>
+        }
+    </div>
+</section>
+}

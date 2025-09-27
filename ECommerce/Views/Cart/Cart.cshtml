@@ -1,0 +1,64 @@
+@model List<E_commerce.Entities.CartItem>
+@{
+    Layout = "_Layout";
+    var total = Model.Sum(c => c.Product.Price * c.Quantity);
+}
+
+<div class="basket">
+    <div class="basket__container container">
+
+        <div class="sub-header">
+            <div class="sub-header__title subtitle">Cart</div>
+        </div>
+
+        <div class="basket__content">
+            <div class="basket__order">
+                <a href="/products" class="basket__bth _button">Catalog</a>
+                <div class="basket__summ subtitle">
+                    <span>Total:&nbsp;</span>
+                    <span>@total <span>$</span></span>
+                </div>
+                @if (Model.Count > 0)
+                {
+                    <a href="/account/checkout" class="basket__bth _button">Checkout</a>
+                }
+                else
+                {
+                    <span class="basket__bth"></span>
+                }
+            </div>
+
+            @if (Model.Count == 0)
+            {
+                <p class="basket__empty text">Your cart is empty.</p>
+            }
+
+            <ul class="basket__body">
+                @foreach (var item in Model)
+                {
+                    <li class="basket__el">
+                        <div class="basket-list__item">
+                            <a href="/product/@item.ProductId" class="basket-list__image">
+                                <img src="~/img/@item.Product.PhotoName" alt="@item.Product.Name">
+                            </a>
+                            <div class="basket-list__body">
+                                <div class="basket-list__top">
+                                    <a href="/product/@item.ProductId" class="basket-list__title subtitle">@item.Product.Name</a>
+                                    <div class="basket-list__forms text">@item.Product.ProductType?.TypeName</div>
+                                </div>
+                                <div class="basket-list__bottom subtitle">
+                                    <div class="basket-list__quantity">x @item.Quantity</div>
+                                    <div class="basket-list__price subtitle">@(item.Product.Price * item.Quantity) <span>$</span></div>
+                                </div>
+                            </div>
+                            <form method="post" action="/account/cart/remove">
+                                <input type="hidden" name="productId" value="@item.ProductId" />
+                                <button type="submit" class="basket-list__delete" title="Remove">+</button>
+                            </form>
+                        </div>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+</div>

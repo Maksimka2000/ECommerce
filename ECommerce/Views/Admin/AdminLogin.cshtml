@@ -1,0 +1,35 @@
+@model AdminLoginViewModel
+
+
+
+
+
+<div class="login-signup">
+
+                        
+    
+
+    <div class="login-signup__container container">
+        <div class="login-signup__login">
+            <form class=" login" asp-action="Login" asp-controller="Admin" method="post">
+                <div class="login__name">
+                    <input type="text" class="_input" name="Username" id="username" placeholder="User name" value="@Model?.UserName" >	
+                </div>
+                <div class="login__password">
+                    <input class="_input" type="password" name="Password" id="password" placeholder="Password">
+                </div>
+                <div class="login__errors">
+                    <span asp-validation-for="UserName" class="text-danger"></span>
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                    @ViewBag.ErrorText
+                </div>
+                <div class="login__button">	
+                    <button type="submit" class="_button" name="login" value="Вход">Authorize</button>
+                </div>
+            </form>
+        </div>
+               
+    </div>
+
+
+</div>

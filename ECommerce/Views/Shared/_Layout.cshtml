@@ -1,0 +1,258 @@
+﻿@using ECommerce.Services
+@using E_commerce.Controllers
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+
+@inject IProductTypeService ProductTypeService
+@inject UserManager<IdentityUser> UserManager
+@inject ICartService CartService
+@inject IRecommendationService RecommendationService
+@{
+    var productTypes = ProductTypeService.GetAllAsync();
+
+    // clear the one-time flags that were not used by the page
+    _ = TempData[ControllerExtensions.SkipVectorUpdate];
+    var openCart = TempData[ControllerExtensions.OpenCart] is true;
+
+    var currentUser = await UserManager.GetUserAsync(User);
+    var isRegistered = User.IsInRole("Registered");
+    var cartItems = currentUser != null && isRegistered
+        ? await CartService.GetCartAsync(currentUser.Id)
+        : new List<E_commerce.Entities.CartItem>();
+    var cartCount = cartItems.Sum(c => c.Quantity);
+    var cartTotal = cartItems.Sum(c => c.Product.Price * c.Quantity);
+
+    // the vector is read after the controller action, so it always shows the latest changes
+    var showWeights = Context.Request.Cookies[ControllerExtensions.ShowWeightsCookie] == "1";
+    var userVector = showWeights && currentUser != null
+        ? await RecommendationService.GetUserVectorAsync(currentUser.Id)
+        : null;
+}
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Shop</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale= 1.0, user-scalable=0">
+    <link href="~/favicon.ico" rel="icon" type="image/x-icon">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true">
+    <script src="https://unpkg.com/swiper@7/swiper-bundle.min.js" defer asp-append-version="true"></script>
+    <script src="~/js/site.js" type="text/javascript" defer asp-append-version="true"></script>
+</head>
+
+
+
+<body>
+
+
+    <header class="header">
+        <div class="header__wrapper">
+            <div class="header-color"></div>
+            <div class="header-main">   
+                <div class="header-main__container container">
+                    <div class="header-main__body">
+                        <div class="header-main__right">
+                            
+                            <div class="header-main__account">
+                                <div class="account">
+                                    <a href="/account" class="account__icon _hover subtitle">Account</a>
+                                </div>
+                            </div>
+                            <div class="header-main__cart">
+                                <div class="cart @(openCart ? "_active" : "")">
+                                    <a href="/account/cart" class="cart__icon _hover subtitle">Cart @if (cartCount > 0) { <span>@cartCount</span> }</a>
+                                    @if (isRegistered)
+                                    {
+                                        <div class="cart__body">
+                                            <div class="cart__up">
+                                                <div class="cart__head">
+                                                    <div class="cart__title subtitle">Cart</div>
+                                                    <button type="button" class="cart__close subtitle">&times;</button>
+                                                </div>
+                                                @if (cartItems.Count == 0)
+                                                {
+                                                    <p class="cart__empty text">Your cart is empty.</p>
+                                                }
+                                                <ul class="cart__cart-list cart-list">
+                                                    @foreach (var item in cartItems)
+                                                    {
+                                                        <li class="cart-list__item">
+                                                            <a href="/product/@item.ProductId" class="cart-list__image">
+                                                                <img src="~/img/@item.Product.PhotoName" alt="@item.Product.Name">
+                                                            </a>
+                                                            <div class="cart-list__body">
+                                                                <a href="/product/@item.ProductId" class="cart-list__title">@item.Product.Name</a>
+                                                                <div class="cart-list__forms">@item.Product.ProductType?.TypeName</div>
+                                                                <div class="cart-list__price">@item.Product.Price <span>$</span></div>
+                                                                <div class="cart-list__bottom">
+                                                                    <div class="cart-list__quantity">x @item.Quantity</div>
+                                                                    <form method="post" action="/account/cart/remove">
+                                                                        <input type="hidden" name="productId" value="@item.ProductId" />
+                                                                        <button type="submit" class="cart-list__delete">Remove</button>
+                                                                    </form>
+                                                                </div>
+                                                            </div>
+                                                        </li>
+                                                    }
+                                                </ul>
+                                            </div>
+                                            <div class="cart__down">
+                                                <div class="cart__total subtitle">
+                                                    <span>Total:</span>
+                                                    <span>@cartTotal <span>$</span></span>
+                                                </div>
+                                                <a href="/account/cart" class="cart__goto text _button">Go to cart</a>
+                                                @if (cartItems.Count > 0)
+                                                {
+                                                    <a href="/account/checkout" class="cart__goto cart__goto--dark text _button">Checkout</a>
+                                                }
+                                                <div class="cart__info smalltext">Delivery is chosen at checkout</div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                            <div class="header-main__burger">
+                                <div>
+                                    <span></span>
+                                    <span></span>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="header-main__left">
+                            <div class="header-main__logo">
+                                <a href="/" class="">
+                                    Shop.com
+                                </a>
+                            </div>
+                            <div class="header-main__menu">
+                                <div class="header-main__wrapper">
+                                    <div class="menu">
+                                        <div class="menu__container">
+
+                                            <div class="menu__body">
+                                                <ul class="menu__list">
+                                                    <li class="menu__item menu__item-katalog">
+                                                        <div href="" class="menu__link menu__link-katalog  flipping-button subtitle">
+                                                            Products
+                                                        </div>
+                                                        <div class="katalog">
+                                                            <div class="katalog__container container">
+                                                                <div class="katalog__body">
+                                                                    <ul class="katalog__list">
+                                                                        <li class="katalog__item goback">
+                                                                            <button class="goback__link subtitle"> back </button>
+                                                                        </li>
+
+                                                                        <li class="katalog__item">
+                                                                            <a class="katalog__link _hover subtitle" href="/products">See all products</a>
+                                                                        </li>
+                                                                        
+                                                                        @foreach (var type in productTypes)
+                                                                        {
+                                                                            <li class="katalog__item">
+                                                                                <a class="katalog__link _hover subtitle" href="/products/@type.IdProductType">@type.TypeName</a>
+                                                                            </li>
+                                                                        }
+                                                                    </ul>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </li>
+                                                    <li class="menu__item">
+                                                        <a href="/delivery" class="menu__link _hover subtitle">Delivery</a>
+                                                    </li>
+                                                    @if (currentUser != null)
+                                                    {
+                                                        <li class="menu__item">
+                                                            <a href="/recommendations" class="menu__link _hover subtitle">Recommendations</a>
+                                                        </li>
+                                                    }
+                                                </ul>
+                                            </div>
+
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    @if (userVector != null)
+    {
+        <details class="weights-bar" open>
+            <summary class="weights-bar__summary smalltext">Your vector (0&ndash;10)</summary>
+            <ul class="weights-bar__list">
+                @foreach (var value in userVector)
+                {
+                    <li class="weights-bar__item smalltext">
+                        <span>@value.TypeName</span>
+                        <span>
+                            <b>@value.Weight.ToString("0.###")</b>
+                            @if (value.LastChange != 0)
+                            {
+                                <span class="weights-change @(value.LastChange > 0 ? "_up" : "_down")">@value.LastChange.ToString("+0.###;-0.###")</span>
+                            }
+                        </span>
+                    </li>
+                }
+            </ul>
+            <a href="/recommendations" class="weights-bar__link smalltext _hover">See KNN calculation</a>
+        </details>
+    }
+   
+    <main class="main">
+
+        @RenderBody()
+
+    </main>
+
+
+    <footer class="footer">
+        <div class="footer__container container">
+            <div class="footer__body">
+                <div class="footer__info footer__column">
+                    <div class="info__sports info__column">
+                        <button class="info__title subtitle">Product Category</button>
+                        <ul class="info__list">
+
+                            <li class="info__item">
+                                <a class="info__link _hover text" href="/products">See all products</a>
+                            </li>
+                            
+                            @foreach (var type in productTypes)
+                            {
+                            <li class="info__item">
+                                <a href="/products/@type.IdProductType" class="info__link _hover text">@type.TypeName</a>
+                            </li>
+                            }
+
+                        </ul>
+                    </div>
+                    <div class="info__client-info info__column">
+                        <button class="info__title subtitle">For clients</button>
+                        <ul class="info__list">
+                            <li class="info__item">
+                                <a href="" class="info__link _hover text">Delivery</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+
+    
+
+</body>
+
+</html>

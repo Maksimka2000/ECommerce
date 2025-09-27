@@ -1,0 +1,35 @@
+
+
+@{
+    Layout = "_AdminLayout";
+}
+
+
+<section class="product-management">
+    <div class="product-management__container container">
+        <h2 class="product-management__title title">Modify New Product Type</h2>
+                
+                
+        <div class="product-management__form-container" id="product-add-form">
+            <form asp-action="UpdateProductType" asp-controller="AdminProductType" method="post" class="product-management__form">
+                <div class="product-management__form-group">
+                    <label class="subtitle" for="product-name">Name:</label>
+                    <input class="_input" type="text" id="product-name" name="TypeName" value="@Model?.TypeName" required>
+                    @* <span asp-validation-for="TypeName" class="text-danger"></span> *@
+                </div>
+                @if (ViewBag.Errors != null && ViewBag.Errors.Count > 0)
+                {
+                <div class="">
+                    @foreach (var error in ViewBag.Errors)
+                    {
+                    <p>@error &nbsp;</p>
+                    }
+                </div>
+                }                
+                <button type="submit" class="product-management__button _button">Modify Product</button>
+            </form>
+                    
+        </div>
+
+    </div>
+</section>

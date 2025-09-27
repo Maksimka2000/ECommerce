@@ -1,0 +1,45 @@
+
+
+@model IEnumerable<E_commerce.Entities.ProductType>
+
+@{
+Layout = "_AdminLayout";
+}
+
+
+<section class="product-management">
+            <div class="product-management__container container">
+                <h2 class="product-management__title title">Product Type Management</h2>
+                <a href="/admin/product-types/add" class="product-management__button-new _button">Add New Product Type</a>
+                <div class="product-management__table-wrapper">
+                    <table class="product-management__table">
+                        <thead class="product-management__thead">
+                            <tr class="product-management__header-row">
+                                <th class="product-management__header-cell subtitle">ID</th>
+                                <th class="product-management__header-cell subtitle">Product Type</th>
+                                <th class="product-management__header-cell subtitle">Action</th>
+                                <th class="product-management__header-cell subtitle">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="product-management__tbody">
+
+
+                        @foreach (var productType in Model)
+                        {
+                            <tr class="product-management__row">
+                                <td class="product-management__cell">@productType.IdProductType</td>
+                                <td class="product-management__cell">@productType.TypeName</td>
+                                <td class="product-management__cell product-management__cell--buttons">
+                                    <a href="/admin/product-types/update/@productType.IdProductType" class="product-management__button product-management__button--update _button">Update</a>
+                                </td>
+                                <td class="product-management__cell product-management__cell--buttons">
+                                    <button class="product-management__button product-management__button--remove _button " onclick="openDeletePopup('/admin/product-types/remove/@productType.IdProductType')">Remove</button>
+                                </td>
+                            </tr>
+                        }
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>

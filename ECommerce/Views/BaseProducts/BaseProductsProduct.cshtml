@@ -1,0 +1,114 @@
+﻿
+
+
+
+
+
+
+
+
+
+
+@using E_commerce.Controllers
+@{
+Layout = "_Layout";
+var showWeights = Context.Request.Cookies[ControllerExtensions.ShowWeightsCookie] == "1";
+}
+
+
+
+
+
+
+
+<div class="product-page__container container">
+    <div class="product-page__content">
+        <div class="content">
+            <div class="content__characteristic">
+                <div class="characteristic__conteiner">
+                    <div class="characteristic__title subtitle" style="flex-direction: row">Description </div>
+                    <div class="characteristic__text " style="max-height: unset">
+                        <input type="checkbox" id="show-more">
+                        <div class="characteristic__label smalltext">
+                            @Model.Description
+                        </div>
+                        <label class="characteristic__show-more" for="show-more"></label>
+                    </div>
+                </div>
+            </div>
+            <div class="content__product-sliders">
+                <div class="main-photo">
+                    <div class="main-photo__slider">
+                        <div class="main-photo__wrapper ">
+                            <div class="main-photo__slide ">
+                                <div class="main-photo__image zoom">
+                                    <img src="~/img/@Model.PhotoName" alt="@Model.Name">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="content__buy">
+                <div class="buy__top">
+                    <div class="buy__text-container">
+                        <div class="buy__title subtitle"> @Model.Name</div>
+                        <div class="buy__lot smalltext"> <span>id: </span> @Model.IdProduct</div>
+                        <div class="buy__price subtitle">@Model.Price <span>$</span> </div>
+                    </div>
+                    <form method="post" action="/account/cart/add" style="display: inline">
+                        <input type="hidden" name="productId" value="@Model.IdProduct" />
+                        <button type="submit" class="form__buy-button buy-button _button text">Add To Cart</button>
+                    </form>
+
+
+                    @if (ViewBag.IsInWishlist)
+                    {
+                    <form method="post" asp-controller="User" asp-action="RemoveFromWishlist" style="display: inline">
+                        <input type="hidden" name="productId" value="@Model.IdProduct" />
+                        <button type="submit" class="form__buy-button buy-button _button text">Remove from </button>
+                    </form>
+                    }
+                    else
+                    {
+                    <form method="post" asp-controller="User" asp-action="AddToWishlist" style="display: inline">
+                        <input type="hidden" name="productId" value="@Model.IdProduct" />
+                        <button type="submit" class="form__buy-button buy-button _button text">Add to WishList</button>
+                    </form>
+                    }
+
+                    @if (showWeights)
+                    {
+                        <div class="product-vector">
+                            <div class="product-vector__title smalltext">Product vector (category: @Model.ProductType?.TypeName)</div>
+                            <ul class="product-vector__list">
+                                @foreach (var value in ViewBag.ProductVector)
+                                {
+                                    <li class="product-vector__item smalltext @(value.Weight > 0 ? "_active" : "")">
+                                        <span>@value.TypeName</span>
+                                        <b>@value.Weight</b>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    }
+
+                    @* <!-- Display Success/Error Messages --> *@
+                    @* <div> *@
+                    @*     @if (!string.IsNullOrEmpty(ViewBag.SuccessTextWishingList as string)) *@
+                    @*     { *@
+                    @*     <p class="success-text">@ViewBag.SuccessTextWishingList</p> *@
+                    @*     } *@
+                    @*     else if (!string.IsNullOrEmpty(ViewBag.ErrorTextWishingList as string)) *@
+                    @*     { *@
+                    @*     <p class="error-text">@ViewBag.ErrorTextWishingList</p> *@
+                    @*     } *@
+                    @* </div> *@
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@await Html.PartialAsync("_RecomendationSlider", ViewBag.RandomProducts, null);

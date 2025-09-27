@@ -1,0 +1,29 @@
+
+
+@model E_commerce.Models.CreateProductTypeViewModel
+
+@{
+Layout = "_AdminLayout";
+}
+
+
+<section class="product-management">
+    <div class="product-management__container container">
+        <h2 class="product-management__title title">Add New Product Type</h2>
+                
+                
+        <div class="product-management__form-container" id="product-add-form">
+            <form asp-action="AddProductType" asp-controller="AdminProductType" method="post" class="product-management__form">
+                <div class="product-management__form-group">
+                    <label class="subtitle" for="product-name">Name:</label>
+                    <input class="_input" type="text" id="product-name" name="TypeName" value="@Model?.TypeName" required>
+                    <span asp-validation-for="TypeName" class="text-danger"></span>
+                </div>
+                                        
+                <button type="submit" class="product-management__button _button">Add Product</button>
+            </form>
+                    
+        </div>
+
+    </div>
+</section>

@@ -1,0 +1,38 @@
+@{
+    Layout = "_Layout";
+}
+
+<div class="product__container container">
+    <div class="sub-header">
+        <div class="sub-header__title icon-scuba subtitle">
+            <span  class="subtitle"> Category: @ViewBag.TypeName | found: @ViewBag.TotalProducts products</span>
+        </div>
+    </div>
+    <div class="product__products">
+        <div class="products__products">
+
+            @foreach (var product in ViewBag.Products)
+            {
+                @await Html.PartialAsync("_ProductCard", product, null)
+            }
+                    
+        </div>
+    </div>
+    <div class="product__pagination">
+        <div class="pagination">
+            @if ((int)ViewData["CurrentPage"] > 1)
+            {
+                <a href="/products/@ViewBag.TypeId?page=@((int)ViewData["CurrentPage"] - 1)" class="pagination__Prev"> &lt; </a>
+            }
+
+            <div class="pagination__Counter subtitle">
+                @ViewData["CurrentPage"] <span>/</span> @ViewData["TotalPages"]
+            </div>
+
+            @if ((int)ViewData["CurrentPage"] < (int)ViewData["TotalPages"])
+            {
+                <a href="/products/@ViewBag.TypeId?page=@((int)ViewData["CurrentPage"] + 1)" class="pagination__Next"> &gt; </a>
+            }
+        </div>
+    </div>
+</div>

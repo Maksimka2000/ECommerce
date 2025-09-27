@@ -1,0 +1,78 @@
+
+
+
+@{
+    Layout = "_AdminLayout";
+}
+
+<section class="product-management">
+    <div class="product-management__container container">
+        <h2 class="product-management__title title">Update Product</h2>
+
+        <div class="product-management__form-container" id="product-add-form">
+            <form asp-action="UpdateProduct" asp-controller="AdminProduct" method="post" enctype="multipart/form-data"  class="product-management__form" novalidate>
+                <div class="product-management__form-group">
+                    <label class="subtitle" for="product-name">Product Name:</label>
+                    <input class="_input" type="text" id="product-name" name="Name" value="@Model?.Name" required>
+                    @* <span asp-validation-for="Name" class="text-danger"></span> *@
+                </div>
+
+                <div class="product-management__form-group">
+                    <label class="subtitle" for="product-description">Description:</label>
+                    <textarea class="_input" id="product-description" name="Description" required>@Model?.Description</textarea>
+                    @* <span asp-validation-for="Description" class="text-danger"></span> *@
+                </div>
+
+                <div class="product-management__form-group">
+                    <label class="subtitle" for="product-availability">Availability:</label>
+                    <input type="checkbox" id="product-availability" name="Availability" value="true" @(Model?.Availability == true ? "checked" : "")/>
+                    @* <input type="hidden" name="Availability" value="false" /> *@
+                    @* <span asp-validation-for="Availability" class="text-danger"></span> *@
+                </div>
+
+                <div class="product-management__form-group">
+                    <label class="subtitle" for="product-price">Price ($):</label>
+                    <input class="_input" type="number" step="0.01" id="product-price" name="Price" value="@(Model?.Price.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture))" required>
+                    @* <span asp-validation-for="Price" class="text-danger"></span> *@
+                </div>
+
+                <div class="product-management__form-group">
+                    <label class="subtitle" for="product-category">Category:</label>
+                    <select class="_input" id="product-category" name="IdProductType" required>
+                        <option value="" selected="">-- Select Category --</option>
+                        @foreach (var type in ViewBag?.ProductTypes)
+                        {
+                        <option value="@type.IdProductType">
+                            @type.TypeName
+                        </option>
+                        }
+                    </select>
+                    @* <span asp-validation-for="IdProductType" class="text-danger"></span> *@
+                </div>
+
+                <div class="product-management__form-group">
+                    <label class="subtitle" for="product-photo">Product Image:</label>
+                    
+                    @if (!string.IsNullOrEmpty(Model?.PhotoName))
+                    {
+                        <img class="product-management__photo" src="@Url.Content("~/img/" + Model.PhotoName)" alt="Product Image">
+                    }
+                    
+                    <input class="_input" type="file" id="product-photo" name="Photo" accept="image/*">
+                </div>
+
+                @if (ViewBag.Errors != null && ViewBag.Errors.Count > 0)
+                {
+                <div class="">
+                    @foreach (var error in ViewBag.Errors)
+                    {
+                    <p>@error &nbsp;</p>
+                    }
+                </div>
+                }
+
+                <button type="submit" class="product-management__button _button">Update Product</button>
+            </form>
+        </div>
+    </div>
+</section>

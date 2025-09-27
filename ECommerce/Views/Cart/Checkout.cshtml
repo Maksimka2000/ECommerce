@@ -1,0 +1,65 @@
+@model E_commerce.Models.CheckoutViewModel
+@{
+    Layout = "_Layout";
+    List<E_commerce.Entities.CartItem> cart = ViewBag.Cart;
+    var total = cart.Sum(c => c.Product.Price * c.Quantity);
+    var deliveryMethods = new[] { "Courier", "Pickup point", "Post office" };
+}
+
+<div class="checkout">
+    <div class="checkout__container container">
+
+        <div class="sub-header">
+            <div class="sub-header__title subtitle">Checkout</div>
+        </div>
+
+        <div class="checkout__content">
+            <form method="post" action="/account/checkout" class="checkout__form">
+                <div class="checkout__title subtitle">Delivery details</div>
+
+                <input type="text" class="_input" name="FullName" placeholder="Full name" value="@Model?.FullName">
+                <input type="text" class="_input" name="Phone" placeholder="Phone" value="@Model?.Phone">
+                <input type="text" class="_input" name="City" placeholder="City" value="@Model?.City">
+                <input type="text" class="_input" name="Address" placeholder="Street, house, apartment" value="@Model?.Address">
+
+                <div class="checkout__title subtitle">Delivery method</div>
+                @foreach (var method in deliveryMethods)
+                {
+                    <label class="checkout__radio text">
+                        <input type="radio" name="DeliveryMethod" value="@method" @(Model?.DeliveryMethod == method || (Model?.DeliveryMethod == null && method == deliveryMethods[0]) ? "checked" : "")>
+                        @method
+                    </label>
+                }
+
+                <div class="checkout__errors text">
+                    <span asp-validation-for="FullName" class="text-danger"></span>
+                    <span asp-validation-for="Phone" class="text-danger"></span>
+                    <span asp-validation-for="City" class="text-danger"></span>
+                    <span asp-validation-for="Address" class="text-danger"></span>
+                    <span asp-validation-for="DeliveryMethod" class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="checkout__button _button">Finalize the order</button>
+                <p class="checkout__info smalltext">This is a fake delivery: no payment is taken, the order goes straight to your order history.</p>
+            </form>
+
+            <div class="checkout__summary">
+                <div class="checkout__title subtitle">Your order</div>
+                <ul class="checkout__list">
+                    @foreach (var item in cart)
+                    {
+                        <li class="checkout__item text">
+                            <span>@item.Product.Name x @item.Quantity</span>
+                            <span>@(item.Product.Price * item.Quantity) $</span>
+                        </li>
+                    }
+                </ul>
+                <div class="checkout__total subtitle">
+                    <span>Total:</span>
+                    <span>@total $</span>
+                </div>
+                <a href="/account/cart" class="checkout__back text _hover">Back to cart</a>
+            </div>
+        </div>
+    </div>
+</div>

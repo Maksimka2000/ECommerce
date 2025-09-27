@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Shop (Admin)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale= 1.0, user-scalable=0">
+    <link href="~/favicon.ico" rel="icon" type="image/x-icon">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true">
+    <script src="https://unpkg.com/swiper@7/swiper-bundle.min.js" defer asp-append-version="true"></script>
+    <script src="~/js/site.js" type="text/javascript" defer asp-append-version="true"></script>
+</head>
+
+
+
+<body>
+
+
+    @await Html.PartialAsync("_AdminHeader")
+   
+    <main class="main">
+        @RenderBody()
+    </main>
+
+
+    <div class="Popup">
+        <div class="Popup__Content">
+          <div class="Popup__Title _smallTitle">Are you sure you want to delete?</div>
+          <div class="Popup__Buttons">
+            <div class="Popup__Button">
+              <a class="Popup__ApproveButton Button" href="">Delete</a>
+            </div>
+            <div class="Popup__Button">
+              <a class="Popup__DeclineButton Button" href="">Exit</a>
+            </div>
+          </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+    </footer>
+
+
+    
+
+</body>
+
+</html>

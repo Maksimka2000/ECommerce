@@ -1,0 +1,160 @@
+@using ECommerce.Services
+@model List<E_commerce.Models.ProductDistance>
+@{
+    Layout = "_Layout";
+    List<E_commerce.Models.VectorValue> userVector = ViewBag.UserVector;
+    int k = ViewBag.K;
+
+    // rules table is built from the same constants the code uses
+    var productRules = new[]
+    {
+        (Number: 3, Action: "Open a product page", Multiplier: VectorAction.ViewProduct),
+        (Number: 4, Action: "Add to wishlist", Multiplier: VectorAction.AddToWishlist),
+        (Number: 5, Action: "Remove from wishlist", Multiplier: VectorAction.RemoveFromWishlist),
+        (Number: 6, Action: "Add to cart", Multiplier: VectorAction.AddToCart),
+        (Number: 7, Action: "Remove from cart", Multiplier: VectorAction.RemoveFromCart),
+        (Number: 8, Action: "Finalize the order (for every product in it)", Multiplier: VectorAction.FinalizeOrder)
+    };
+    // example product: Swimming Shorts [swimming 8, clothing 4, other 1]
+    var example = new[] { (Name: "Swimming", Weight: 8.0), (Name: "Clothing", Weight: 4.0), (Name: "Other", Weight: 1.0) };
+    string Signed(double value) => value.ToString("+0.###;-0.###;0");
+}
+
+<div class="knn">
+    <div class="knn__container container">
+
+        <div class="sub-header">
+            <div class="sub-header__title subtitle">Recommendations &mdash; how they are calculated</div>
+        </div>
+
+        <div class="knn__step">
+            <div class="knn__title subtitle">How it works</div>
+            <ol class="knn__how text">
+                <li>Every category is one dimension. A <b>product vector</b> has one number (0&ndash;@RecommendationService.MaxWeight) per category: how much the product belongs to it. Example: Swimming Shorts = [swimming 8, clothing 4, other 1, all other categories 0].</li>
+                <li>A <b>user vector</b> has one number (0&ndash;@RecommendationService.MaxWeight) per category: how much the user is interested in it. A new user starts with a random number from 0 to @RecommendationService.StartMaxWeight in every category.</li>
+                <li>Everything you do in the shop changes your vector by the rules below. The change of your last action is shown next to every number (green = added, red = removed).</li>
+                <li>To recommend, the shop calculates the <b>Euclidean distance</b> between your vector and every product vector. The smaller the distance, the closer the product is to your interests.</li>
+                <li><b>K nearest neighbours</b>: the @k products with the smallest distance are shown in the &ldquo;Recomendation&rdquo; block on the main page and on product pages.</li>
+            </ol>
+        </div>
+
+        <div class="knn__step">
+            <div class="knn__title subtitle">Vector rules</div>
+            <ul class="knn__rules text">
+                <li><b>0.</b> Every number stays between 0 and @RecommendationService.MaxWeight (max is @RecommendationService.MaxWeight).</li>
+                <li><b>1.</b> Enter a category page: that category @Signed(RecommendationService.CategoryVisitBonus).</li>
+                <li><b>2.</b> Enter a different category than before: that category @Signed(RecommendationService.CategoryVisitBonus), all other categories @Signed(-RecommendationService.OtherCategoryPenalty).</li>
+                <li><b>3&ndash;8.</b> Product actions: every category the product has (weight &gt; 0) changes by (product weight / @RecommendationService.MaxWeight) &times; multiplier, all other categories change by @Signed(-RecommendationService.OtherCategoryPenalty) &times; multiplier. Example with Swimming Shorts:</li>
+            </ul>
+            <div class="knn__scroll">
+                <table class="knn__table">
+                    <tr>
+                        <th class="smalltext">#</th>
+                        <th class="smalltext">Action</th>
+                        <th class="smalltext">Multiplier</th>
+                        @foreach (var category in example)
+                        {
+                            <th class="smalltext">@category.Name (@category.Weight)</th>
+                        }
+                        <th class="smalltext">All other categories</th>
+                    </tr>
+                    @foreach (var rule in productRules)
+                    {
+                        var strength = Math.Abs(rule.Multiplier);
+                        var sign = rule.Multiplier >= 0 ? 1 : -1;
+                        <tr>
+                            <td class="text">@rule.Number</td>
+                            <td class="text">@rule.Action</td>
+                            <td class="text">&times;@strength</td>
+                            @foreach (var category in example)
+                            {
+                                var delta = sign * category.Weight / RecommendationService.MaxWeight * strength;
+                                <td class="text @(delta >= 0 ? "weights-change _up" : "weights-change _down")">@(sign > 0 ? "+" : "-")@(category.Weight / RecommendationService.MaxWeight) &times; @strength = @Signed(delta)</td>
+                            }
+                            <td class="text weights-change _down">-@RecommendationService.OtherCategoryPenalty &times; @strength = @Signed(-RecommendationService.OtherCategoryPenalty * strength)</td>
+                        </tr>
+                    }
+                </table>
+            </div>
+        </div>
+
+        <div class="knn__step">
+            <div class="knn__title subtitle">1. Your vector</div>
+            <div class="knn__scroll">
+                <table class="knn__table">
+                    <tr>
+                        @foreach (var value in userVector)
+                        {
+                            <th class="smalltext">@value.TypeName</th>
+                        }
+                    </tr>
+                    <tr>
+                        @foreach (var value in userVector)
+                        {
+                            <td class="text"><b>@value.Weight.ToString("0.###")</b></td>
+                        }
+                    </tr>
+                    <tr>
+                        @foreach (var value in userVector)
+                        {
+                            <td class="smalltext weights-change @(value.LastChange > 0 ? "_up" : value.LastChange < 0 ? "_down" : "")">
+                                @(value.LastChange == 0 ? "0" : Signed(value.LastChange))
+                            </td>
+                        }
+                    </tr>
+                </table>
+            </div>
+            <p class="knn__formula smalltext">Second row: how much your last action changed every number.</p>
+        </div>
+
+        <div class="knn__step">
+            <div class="knn__title subtitle">2. Euclidean distance to every product</div>
+            <p class="knn__formula text">d = &radic;( (u<sub>1</sub> &minus; p<sub>1</sub>)&sup2; + (u<sub>2</sub> &minus; p<sub>2</sub>)&sup2; + &hellip; + (u<sub>@userVector.Count</sub> &minus; p<sub>@userVector.Count</sub>)&sup2; )</p>
+            @if (Model.Count > 0)
+            {
+                var nearest = Model[0];
+                <p class="knn__formula text">
+                    Example, @nearest.Product.Name:
+                    d = &radic;(
+                    @for (var i = 0; i < userVector.Count; i++)
+                    {
+                        @:(@userVector[i].Weight.ToString("0.###") &minus; @nearest.ProductVector[i].Weight)&sup2;@(i < userVector.Count - 1 ? " + " : "")
+                    }
+                    ) = &radic;@nearest.SumOfSquares.ToString("0.00") = <b>@nearest.Distance.ToString("0.00")</b>
+                </p>
+            }
+        </div>
+
+        <div class="knn__step">
+            <div class="knn__title subtitle">3. K nearest neighbours (K = @k): the @k smallest distances are recommended</div>
+            <div class="knn__scroll">
+                <table class="knn__table">
+                    <tr>
+                        <th class="smalltext">#</th>
+                        <th class="smalltext">Product</th>
+                        @foreach (var value in userVector)
+                        {
+                            <th class="smalltext">@value.TypeName</th>
+                        }
+                        <th class="smalltext">&Sigma;(u &minus; p)&sup2;</th>
+                        <th class="smalltext">Distance</th>
+                    </tr>
+                    @for (var i = 0; i < Model.Count; i++)
+                    {
+                        var row = Model[i];
+                        <tr class="@(i < k ? "_active" : "")">
+                            <td class="text">@(i + 1)</td>
+                            <td class="text"><a href="/product/@row.Product.IdProduct" class="_hover">@row.Product.Name</a></td>
+                            @foreach (var value in row.ProductVector)
+                            {
+                                <td class="text">@value.Weight</td>
+                            }
+                            <td class="text">@row.SumOfSquares.ToString("0.00")</td>
+                            <td class="text"><b>@row.Distance.ToString("0.00")</b></td>
+                        </tr>
+                    }
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
